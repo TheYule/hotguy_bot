@@ -1,0 +1,23 @@
+{
+  "name": "hotguy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hotguy.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheYule/hotguy_bot.git"
+  },
+  "author": "TheYule",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TheYule/hotguy_bot/issues"
+  },
+  "homepage": "https://github.com/TheYule/hotguy_bot#readme",
+  "dependencies": {
+    "canvas": "^2.8.0",
+    "discord.js": "^12.5.3"
+  }
+}
