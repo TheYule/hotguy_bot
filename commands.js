@@ -197,33 +197,69 @@ const execute = async (data, msg) => {
             }
             break;
         case "mute":
+            if (!msg.guild.member(msg.author).hasPermission("MANAGE_ROLES")) return;
+
             if (!msg.mentions.users.first()) {
                 error(msg, "Incorrect Usage of command: Missing Components", ".mute <@target>");
             } else {
                 mute(msg);
 
-                const user = msg.mentions.users.first();
+                const user = msg.mentions.members.first();
 
-                var role = msg.guild.roles.cache.find(a => a.name === "Muted");
-
+                let role = msg.guild.roles.cache.find(x => x.name == "Muted");
                 user.roles.add(role);
 
-                const embed1 = new MessageEmbed()
+                var embed3 = new MessageEmbed()
                     .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                     .setColor(0x2ecc71)
                     .setDescription(":white_check_mark: " + user.toString() + " was muted by " + msg.author.toString() + ".")
                     .setFooter("Created with BotGhost - https://botghost.com/");
 
-                msg.channel.send(embed1);
+                msg.channel.send(embed3);
 
                 mod_log(msg);
 
-                embed1 = new MessageEmbed()
+                embed3 = new MessageEmbed()
                     .setColor(0x3498db)
                     .setDescription(user.toString() + " was muted by " + msg.author.toString() + ".")
                     .setFooter("Moderation");
 
-                msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed1);
+                msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed3);
+            }
+            break;
+        case "unmute":
+            if (!msg.guild.member(msg.author).hasPermission("MANAGE_ROLES")) return;
+
+            if (!msg.mentions.users.first()) {
+                error(msg, "Incorrect Usage of command: Missing Components", ".unmute <@target>");
+            } else {
+                mute(msg);
+
+                const user = msg.mentions.members.first();
+
+                let role = msg.guild.roles.cache.find(x => x.name == "Muted");
+                if (user.roles.cache.has(role.Id)) {
+                    user.roles.remove(role);
+
+                    var embed4 = new MessageEmbed()
+                        .setAuthor(msg.author.username, msg.author.displayAvatarURL())
+                        .setColor(0x2ecc71)
+                        .setDescription(":white_check_mark: " + user.toString() + " was unmuted by " + msg.author.toString() + ".")
+                        .setFooter("Created with BotGhost - https://botghost.com/");
+
+                    msg.channel.send(embed4);
+
+                    mod_log(msg);
+
+                    embed4 = new MessageEmbed()
+                        .setColor(0x3498db)
+                        .setDescription(user.toString() + " was unmuted by " + msg.author.toString() + ".")
+                        .setFooter("Moderation");
+
+                    msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed4);
+                } else {
+                    error(msg, "Mute Failed: Unable to find the role 'Muted' or the user was never muted.", ".unmute <@target>");
+                }
             }
             break;
         case "help":
