@@ -154,19 +154,44 @@ module.exports.execute = async (data, msg) => {
             msg.channel.send(embed);
             break;
         case "create_meme":
-            if (args[1] == "" || args[1] == null) {
-                error(msg, "Command is missing components", ".create_meme <message>");
+            if (!parseInt(args[1]) || args[2] == "" || args[2] == null) {
+                error(msg, "Command is missing components", ".create_meme <id> <message>");
             } else {
                 const canvas = Canvas.createCanvas(800, 450);
                 const context = canvas.getContext("2d");
 
-                const background = await Canvas.loadImage("./meme.png");
+                var path;
+                var color = "#000000";
+
+                switch (parseInt(args[1])) {
+                    case 1:
+                        path = "meme";
+                        break;
+                    case 2:
+                        path = "meme2";
+                        break;
+                    case 3:
+                        path = "meme3";
+                        break;
+                    case 4:
+                        path = "meme4"
+                        break;
+                    case 5:
+                        path = "meme5";
+                        color = "#ffffff";
+                        break;
+                    default:
+                        path = "meme";
+                        break;
+                }
+
+                const background = await Canvas.loadImage("./stock/" + path + ".png");
                 context.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-                const text = remainder_args(args);
+                const text = args.slice(2).join(" ");
 
                 context.font = applyText(canvas, text);
-                context.fillStyle = "#000000";
+                context.fillStyle = color;
                 context.fillText(text, 50, canvas.height - 50);
                 
                 const attachment = new MessageAttachment(canvas.toBuffer(), "generated-meme.png");
@@ -201,7 +226,8 @@ module.exports.execute = async (data, msg) => {
                 error(msg, "Incorrect Usage of command: Missing Components", ".warn <@target> <reason>");
             } else {
                 var reason = args.slice(2).join(" ");
-                warn(msg, msg.mentions.users.first(), (reason == "" || reason == null) ? "No reason provided" : reason);
+                var result = (reason == "" || reason == null) ? "No reason provided" : reason;
+                warn(msg, msg.mentions.users.first(), result);
             }
             break;
         case "warnings":
@@ -340,11 +366,12 @@ module.exports.execute = async (data, msg) => {
 
                     mod_log(msg);
                     
-                    var reason_ = args.slice(2).join(" ");
+                    var reason = args.slice(2).join(" ");
+                    var result = (reason == "" || reason == null) ? "Kicked by " + msg.author.tag : reason;
 
                     embed = new MessageEmbed()
                         .setColor(0x3498db)
-                        .setDescription(user.toString() + " was kicked by " + msg.author.toString() + ". Reason: " + (reason_ == "" || reason_ == null) ? "Kicked by " + msg.author.tag : reason_)
+                        .setDescription(user.toString() + " was kicked by " + msg.author.toString() + ". Reason: " + result)
                         .setFooter("Moderation");
 
                     msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
@@ -356,7 +383,41 @@ module.exports.execute = async (data, msg) => {
             }
             break;
         case "softban":
-            error(msg, "I can't soft ban users! I don't know how because HotGuy4%HD is *too dumb* to code a Discord bot...", ".softban <@target> <reason>");
+            if (!msg.guild.member(msg.author).hasPermission(["BAN_MEMBERS", "ADMINISTRATOR"]) || !msg.guild.me.hasPermission(["BAN_MEMBERS", "ADMINISTRATOR"])) return;
+
+            if (!msg.mentions.users.first()) {
+                error(msg, "Incorrect Usage of command: Missing Components", ".softban <@target> <days> <reason>");
+            } else {
+                if (!parseInt(args[2])) return error(msg, "Incorrect Usage of command: Missing Components", ".softban <@target> <days> <reason>");
+
+                try {
+                    const user = msg.mentions.members.first();
+
+                    embed = new MessageEmbed()
+                        .setAuthor(msg.author.username, msg.author.displayAvatarURL())
+                        .setColor(0x2ecc71)
+                        .setDescription(":white_check_mark: " + user.toString() + " was soft banned by " + msg.author.toString() + " for `" + args[2] + "` days.")
+                        .setFooter("Created with BotGhost - https://botghost.com/");
+
+                    msg.channel.send(embed);
+
+                    mod_log(msg);
+                    
+                    var reason = args.slice(3).join(" ");
+                    var result = (reason == "" || reason == null) ? "Soft banned by " + msg.author.tag : reason;
+
+                    embed = new MessageEmbed()
+                        .setColor(0x3498db)
+                        .setDescription(user.toString() + " was soft banned by " + msg.author.toString() + ". Days: `" + args[2] + "`. Reason: " + result)
+                        .setFooter("Moderation");
+
+                    msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
+
+                    user.ban({ days: parseInt(args[2]), reason: result });
+                } catch {
+                    error(msg, "Soft ban Failed: Unknown Failure.", ".softban <@target> <days> <reason>");
+                }
+            }
             break;
         case "ban":
             if (!msg.guild.member(msg.author).hasPermission(["BAN_MEMBERS", "ADMINISTRATOR"]) || !msg.guild.me.hasPermission(["BAN_MEMBERS", "ADMINISTRATOR"])) return;
@@ -377,16 +438,17 @@ module.exports.execute = async (data, msg) => {
 
                     mod_log(msg);
                     
-                    var reason__ = args.slice(2).join(" ");
+                    var reason = args.slice(2).join(" ");
+                    var result = (reason == "" || reason == null) ? "Banned by " + msg.author.tag : reason;
 
                     embed = new MessageEmbed()
                         .setColor(0x3498db)
-                        .setDescription(user.toString() + " was banned by " + msg.author.toString() + ". Reason: " + (reason__ == "" || reason__ == null) ? "Banned by " + msg.author.tag : reason__)
+                        .setDescription(user.toString() + " was banned by " + msg.author.toString() + ". Reason: " + result)
                         .setFooter("Moderation");
 
                     msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
 
-                    user.ban();
+                    user.ban({ reason: result });
                 } catch {
                     error(msg, "Ban Failed: Unknown Failure.", ".ban <@target>");
                 }
@@ -539,7 +601,7 @@ module.exports.execute = async (data, msg) => {
                     .setColor(0xff0000)
                     .addFields(
                         { name: "`.memes`", value: "Returns a list of meme templates." },
-                        { name: "`.create_meme <message>`", value: "Creates a meme from the supplied message" }
+                        { name: "`.create_meme <id> <message>`", value: "Creates a meme from the supplied id and message" }
                     );
                 
                 msg.channel.send(embed);
