@@ -1,9 +1,10 @@
 {
   "name": "hotguy",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "A simple Discord bot that was (somewhat) copied from another bot as a troll.",
   "main": "hotguy.js",
   "scripts": {
+    "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

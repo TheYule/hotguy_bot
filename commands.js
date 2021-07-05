@@ -2,13 +2,43 @@ const bot = require("./hotguy");
 const { MessageEmbed, MessageAttachment } = require("discord.js");
 const Canvas = require("canvas");
 
-const remainder_args = args => { var arr = args; arr.shift(); return arr.join(" "); }
+const remainder_args = args => { var arr = args; return arr.slice(1).join(" "); }
 
 const mod_log = msg => {
     if (msg.guild.channels.cache.find(i => i.name === "mod-logs")) {
         return;
     } else {
         msg.guild.channels.create("mod-logs", {
+            type: "text",
+            permissionOverwrites: [{
+                id: msg.guild.id,
+                allow: ["VIEW_CHANNEL"],
+                deny: ["SEND_MESSAGES"]
+            }]
+        });
+    }
+}
+
+const report_log = msg => {
+    if (msg.guild.channels.cache.find(i => i.name === "reports")) {
+        return;
+    } else {
+        msg.guild.channels.create("reports", {
+            type: "text",
+            permissionOverwrites: [{
+                id: msg.guild.id,
+                allow: ["VIEW_CHANNEL"],
+                deny: ["SEND_MESSAGES"]
+            }]
+        });
+    }
+}
+
+const suggestion_log = msg => {
+    if (msg.guild.channels.cache.find(i => i.name === "suggestions")) {
+        return;
+    } else {
+        msg.guild.channels.create("suggestions", {
             type: "text",
             permissionOverwrites: [{
                 id: msg.guild.id,
@@ -64,10 +94,11 @@ const applyText = (canvas, text) => {
 	return context.font;
 };
 
-const execute = async (data, msg) => {
-    const args = data.trim().split(" ");
+module.exports.execute = async (data, msg) => {
+    const args = data.trim().split(/ +/);
     const command = args[0];
 
+    var embed;
     const pfp = "https://images-ext-1.discordapp.net/external/MBxcFgNaHP_16cmi4feNrJwJBbYniSPhuO3ZcFPQuFc/https/cdn.discordapp.com/avatars/859505952696041523/8a3b2ab1d9733ef0f76cd10a9cbb177b.webp";
 
     switch (command) {
@@ -96,8 +127,23 @@ const execute = async (data, msg) => {
         case "gayboy":
             msg.channel.send("HotGuy4%HD is a gay boy");
             break;
+        case "ep1":
+            msg.channel.send("https://www.youtube.com/watch?v=Z3pAC9B95ew");
+            break;
+        case "burnyule":
+            msg.channel.send("https://www.youtube.com/watch?v=5f2XLW2mHcI");
+            break;
+        case "disstrack":
+            msg.channel.send("https://www.youtube.com/watch?v=Rlp2b3OZycg");
+            break;
+        case "gayerboy":
+            msg.channel.send("HOTGUY4%HD IS THE GAYER BOY");
+            break;
+        case "gayestboy":
+            msg.channel.send("HotGuy4%HD is The Gayest Boy!");
+            break;
         case "memes":
-            const embed1 = new MessageEmbed()
+            embed = new MessageEmbed()
                 .setTitle("Meme Id's")
                 .setColor("gray")
                 .addFields(
@@ -105,7 +151,7 @@ const execute = async (data, msg) => {
                     { name: "Template IDs", value: "Error:\n`Unable to fetch templates. ERR_NO_TEMPLATES 0x2763h279s632`" }
                 );
             
-            msg.channel.send(embed1);
+            msg.channel.send(embed);
             break;
         case "create_meme":
             if (args[1] == "" || args[1] == null) {
@@ -142,7 +188,7 @@ const execute = async (data, msg) => {
             msg.reply("My Invite URL is `https://discord.com/api/oauth2/authorize?client_id=860907748693377034&scope=bot`")
             break;
         case "afk":
-            const embed = new MessageEmbed()
+            embed = new MessageEmbed()
                 .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                 .setColor(0x2ecc71)
                 .setDescription(":white_check_mark: AFK Status set with message: This user is currently AFK.\n\n`Type .afk to remove afk status`")
@@ -154,16 +200,15 @@ const execute = async (data, msg) => {
             if (!msg.mentions.users.first()) {
                 error(msg, "Incorrect Usage of command: Missing Components", ".warn <@target> <reason>");
             } else {
-                var arr = args;
-                arr.splice(0, 2);
-                warn(msg, msg.mentions.users.first(), (arr.join(" ") == "" || arr.join(" ") == null) ? "No reason provided" : arr.join(" "));
+                var reason = args.slice(2).join(" ");
+                warn(msg, msg.mentions.users.first(), (reason == "" || reason == null) ? "No reason provided" : reason);
             }
             break;
         case "warnings":
             if (!msg.mentions.users.first()) {
                 error(msg, "Incorrect Usage of command: Missing Components", ".warnings <@target>");
             } else {
-                const embed = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setTitle("Warnings for " + msg.author.username)
                     .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                     .setColor(0x3498db)
@@ -178,26 +223,25 @@ const execute = async (data, msg) => {
             } else {
                 const user = msg.mentions.users.first();
 
-                var embed2 = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                     .setColor(0x2ecc71)
                     .setDescription(user.toString() + " warnings cleared by " + msg.author.toString() + ".");
 
-                msg.channel.send(embed2);
+                msg.channel.send(embed);
 
                 mod_log(msg);
 
-                embed2
-                    .setAuthor("", null)
+                embed = new MessageEmbed()
                     .setColor(0x3498db)
                     .setDescription(user.toString() + " warnings cleared by " + msg.author.toString() + ".")
                     .setFooter("Moderation");
 
-                msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed2);
+                msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
             }
             break;
         case "mute":
-            if (!msg.guild.member(msg.author).hasPermission("MANAGE_ROLES")) return;
+            if (!msg.guild.member(msg.author).hasPermission("MANAGE_ROLES") || !msg.guild.me.hasPermission("MANAGE_ROLES")) return;
 
             if (!msg.mentions.users.first()) {
                 error(msg, "Incorrect Usage of command: Missing Components", ".mute <@target>");
@@ -209,26 +253,26 @@ const execute = async (data, msg) => {
                 let role = msg.guild.roles.cache.find(x => x.name == "Muted");
                 user.roles.add(role);
 
-                var embed3 = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                     .setColor(0x2ecc71)
                     .setDescription(":white_check_mark: " + user.toString() + " was muted by " + msg.author.toString() + ".")
                     .setFooter("Created with BotGhost - https://botghost.com/");
 
-                msg.channel.send(embed3);
+                msg.channel.send(embed);
 
                 mod_log(msg);
 
-                embed3 = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setColor(0x3498db)
                     .setDescription(user.toString() + " was muted by " + msg.author.toString() + ".")
                     .setFooter("Moderation");
 
-                msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed3);
+                msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
             }
             break;
         case "unmute":
-            if (!msg.guild.member(msg.author).hasPermission("MANAGE_ROLES")) return;
+            if (!msg.guild.member(msg.author).hasPermission("MANAGE_ROLES") || !msg.guild.me.hasPermission("MANAGE_ROLES")) return;
 
             if (!msg.mentions.users.first()) {
                 error(msg, "Incorrect Usage of command: Missing Components", ".unmute <@target>");
@@ -241,30 +285,244 @@ const execute = async (data, msg) => {
                 if (user.roles.cache.has(role.Id)) {
                     user.roles.remove(role);
 
-                    var embed4 = new MessageEmbed()
+                    embed = new MessageEmbed()
                         .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                         .setColor(0x2ecc71)
                         .setDescription(":white_check_mark: " + user.toString() + " was unmuted by " + msg.author.toString() + ".")
                         .setFooter("Created with BotGhost - https://botghost.com/");
 
-                    msg.channel.send(embed4);
+                    msg.channel.send(embed);
 
                     mod_log(msg);
 
-                    embed4 = new MessageEmbed()
+                    embed = new MessageEmbed()
                         .setColor(0x3498db)
                         .setDescription(user.toString() + " was unmuted by " + msg.author.toString() + ".")
                         .setFooter("Moderation");
 
-                    msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed4);
+                    msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
+                }
+
+                // error(msg, "Mute Failed: Unable to find the role 'Muted' or the user was never muted.", ".unmute <@target>");
+            }
+            break;
+        case "suggest":
+            if (args[1] == "" || args[1] == null) {
+                error(msg, "Suggestion Failed: Please include your suggestion in your command.", ".suggest <suggestion>");
+            } else {
+                suggestion_log(msg);
+
+                embed = new MessageEmbed()
+                    .setAuthor(msg.author.tag, msg.author.displayAvatarURL())
+                    .setColor(0x3498db)
+                    .setDescription(remainder_args(args))
+                    .setFooter("Created with BotGhost - https://botghost.com/");
+
+                msg.guild.channels.cache.find(i => i.name === "suggestions").send(embed);
+            }
+            break;
+        case "kick":
+            if (!msg.guild.member(msg.author).hasPermission(["KICK_MEMBERS", "ADMINISTRATOR"]) || !msg.guild.me.hasPermission(["KICK_MEMBERS", "ADMINISTRATOR"])) return;
+
+            if (!msg.mentions.users.first()) {
+                error(msg, "Incorrect Usage of command: Missing Components", ".kick <@target>");
+            } else {
+                try {
+                    const user = msg.mentions.members.first();
+
+                    embed = new MessageEmbed()
+                        .setAuthor(msg.author.username, msg.author.displayAvatarURL())
+                        .setColor(0x2ecc71)
+                        .setDescription(":white_check_mark: " + user.toString() + " was kicked by " + msg.author.toString() + ".")
+                        .setFooter("Created with BotGhost - https://botghost.com/");
+
+                    msg.channel.send(embed);
+
+                    mod_log(msg);
+                    
+                    var reason_ = args.slice(2).join(" ");
+
+                    embed = new MessageEmbed()
+                        .setColor(0x3498db)
+                        .setDescription(user.toString() + " was kicked by " + msg.author.toString() + ". Reason: " + (reason_ == "" || reason_ == null) ? "Kicked by " + msg.author.tag : reason_)
+                        .setFooter("Moderation");
+
+                    msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
+
+                    user.kick("[object Object]");
+                } catch {
+                    error(msg, "Kick Failed: Unknown Failure.", ".kick <@target>");
+                }
+            }
+            break;
+        case "softban":
+            error(msg, "I can't soft ban users! I don't know how because HotGuy4%HD is *too dumb* to code a Discord bot...", ".softban <@target> <reason>");
+            break;
+        case "ban":
+            if (!msg.guild.member(msg.author).hasPermission(["BAN_MEMBERS", "ADMINISTRATOR"]) || !msg.guild.me.hasPermission(["BAN_MEMBERS", "ADMINISTRATOR"])) return;
+
+            if (!msg.mentions.users.first()) {
+                error(msg, "Incorrect Usage of command: Missing Components", ".ban <@target>");
+            } else {
+                try {
+                    const user = msg.mentions.members.first();
+
+                    embed = new MessageEmbed()
+                        .setAuthor(msg.author.username, msg.author.displayAvatarURL())
+                        .setColor(0x2ecc71)
+                        .setDescription(":white_check_mark: " + user.toString() + " was banned by " + msg.author.toString() + ".")
+                        .setFooter("Created with BotGhost - https://botghost.com/");
+
+                    msg.channel.send(embed);
+
+                    mod_log(msg);
+                    
+                    var reason__ = args.slice(2).join(" ");
+
+                    embed = new MessageEmbed()
+                        .setColor(0x3498db)
+                        .setDescription(user.toString() + " was banned by " + msg.author.toString() + ". Reason: " + (reason__ == "" || reason__ == null) ? "Banned by " + msg.author.tag : reason__)
+                        .setFooter("Moderation");
+
+                    msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
+
+                    user.ban();
+                } catch {
+                    error(msg, "Ban Failed: Unknown Failure.", ".ban <@target>");
+                }
+            }
+            break;
+        case "addrole":
+            if (!msg.guild.member(msg.author).hasPermission("MANAGE_ROLES") || !msg.guild.me.hasPermission("MANAGE_ROLES")) return;
+
+            if (!msg.mentions.users.first()) {
+                error(msg, "Incorrect Usage of command: Missing Components", ".addrole <@target> <role>");
+            } else {
+                if (args[2] == "undefined") {
+                    error(msg, "Incorrect Usage of command: Missing Components", ".addrole <@target> <role>");
                 } else {
-                    error(msg, "Mute Failed: Unable to find the role 'Muted' or the user was never muted.", ".unmute <@target>");
+                    try {
+                        const user = msg.mentions.members.first();
+    
+                        let role = msg.guild.roles.cache.find(x => x.name == args[2]);
+                        user.roles.add(role);
+    
+                        embed = new MessageEmbed()
+                            .setAuthor(msg.author.username, msg.author.displayAvatarURL())
+                            .setColor(0x2ecc71)
+                            .setDescription(":white_check_mark: Added role `" + args[2] + "` to " + user.toString())
+                            .setFooter("Created with BotGhost - https://botghost.com/");
+    
+                        msg.channel.send(embed);
+    
+                        mod_log(msg);
+    
+                        embed = new MessageEmbed()
+                            .setColor(0x3498db)
+                            .setDescription(msg.author.toString() + " added role `" + args[2] + "` to " + user.toString())
+                            .setFooter("Moderation");
+    
+                        msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
+                    } catch {
+                        error(msg, "Error: Could not add the role to the user.", ".addrole <@target> <role>");
+                    }
+                }
+            }
+            break;
+        case "removerole":
+            if (!msg.guild.member(msg.author).hasPermission("MANAGE_ROLES") || !msg.guild.me.hasPermission("MANAGE_ROLES")) return;
+
+            if (!msg.mentions.users.first()) {
+                error(msg, "Incorrect Usage of command: Missing Components", ".removerole <@target> <role>");
+            } else {
+                if (args[2] == "undefined") {
+                    error(msg, "Incorrect Usage of command: Missing Components", ".removerole <@target> <role>");
+                } else {
+                    try {
+                        const user = msg.mentions.members.first();
+    
+                        let role = msg.guild.roles.cache.find(x => x.name == args[2]);
+                        user.roles.add(role);
+    
+                        embed = new MessageEmbed()
+                            .setAuthor(msg.author.username, msg.author.displayAvatarURL())
+                            .setColor(0x2ecc71)
+                            .setDescription(":white_check_mark: Remove role `" + args[2] + "` from " + user.toString())
+                            .setFooter("Created with BotGhost - https://botghost.com/");
+    
+                        msg.channel.send(embed);
+    
+                        mod_log(msg);
+    
+                        embed = new MessageEmbed()
+                            .setColor(0x3498db)
+                            .setDescription(msg.author.toString() + " removed role `" + args[2] + "` from " + user.toString())
+                            .setFooter("Moderation");
+    
+                        msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
+                    } catch {
+                        error(msg, "Error: Could not add the role to the user.", ".removerole <@target> <role>");
+                    }
+                }
+            }
+            break;
+        case "report":
+            if (!msg.mentions.users.first()) {
+                error(msg, "Report Failed: Please @ another member to report.", ".report <@target> <optional message>");
+            } else {
+                report_log(msg);
+
+                const user = msg.mentions.members.first();
+
+                var reason___ = args.slice(2).join(" ");
+                var result = (reason___ == "" || reason___ == null) ? "" : "\nReason: " + reason___;
+
+                embed = new MessageEmbed()
+                    .setAuthor(msg.author.username, msg.author.displayAvatarURL())
+                    .setColor(0x3498db)
+                    .setDescription("**New report against** " + user.toString() + "\n\nBy:" + msg.author.toString() + "\nLast message: " + user.lastMessage.content + result)
+                    .setFooter("Created with BotGhost - https://botghost.com/");
+
+                msg.guild.channels.cache.find(i => i.name === "reports").send(embed);
+
+                msg.reply("Report Received!");
+            }
+            break;
+        case "purge":
+            if (!msg.guild.member(msg.author).hasPermission("MANAGE_MESSAGES") || !msg.guild.me.hasPermission("MANAGE_MESSAGES")) return;
+
+            if (args[1] == "" || args[1] == null) {
+                error(msg, "Incorrect Usage of Command: Missing Components", ".purge <number of messages to delete>");
+            } else {
+                if (!parseInt(args[1])) {
+                    error(msg, "Incorrect Usage of Command: Missing Components", ".purge <number of messages to delete>");
+                } else {
+                    msg.channel.bulkDelete(parseInt(args[1]), true).catch(() => {
+                        error(msg, "Something went wrong when purging this channel.", ".purge <number of messages to delete>");
+                    });
+
+                    embed = new MessageEmbed()
+                        .setAuthor(msg.author.username, msg.author.displayAvatarURL())
+                        .setColor(0x2ecc71)
+                        .setDescription(":white_check_mark: Successfully purged " + args[1] + " messages.")
+                        .setFooter("Created with BotGhost - https://botghost.com/");
+
+                    msg.channel.send(embed);
+
+                    mod_log(msg);
+    
+                    embed = new MessageEmbed()
+                        .setColor(0x3498db)
+                        .setDescription(msg.author.toString() + " purged " + args[1] + " messages from " + msg.channel.name)
+                        .setFooter("Moderation");
+
+                    msg.guild.channels.cache.find(i => i.name === "mod-logs").send(embed);
                 }
             }
             break;
         case "help":
             if (args[1] == "levels") {
-                const embed = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setTitle("Levels Commands")
                     .setThumbnail(pfp)
                     .setColor("0xff0000")
@@ -275,7 +533,7 @@ const execute = async (data, msg) => {
                 
                 msg.channel.send(embed);
             } else if (args[1] == "memes") {
-                const embed = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setTitle("Meme Commands")
                     .setThumbnail(pfp)
                     .setColor(0xff0000)
@@ -286,7 +544,7 @@ const execute = async (data, msg) => {
                 
                 msg.channel.send(embed);
             } else if (args[1] == "commands") {
-                const embed = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setTitle("Custom Commands")
                     .setThumbnail(pfp)
                     .setColor(0xff0000)
@@ -296,12 +554,17 @@ const execute = async (data, msg) => {
                         { name: "`.spamping`", value: "pings" },
                         { name: "`.NullifiedEncryptor`", value: "Nullified Encryptor" },
                         { name: "`.channel`", value: "my channel" },
-                        { name: "`.gayboy`", value: "Says the gay boy name" }
+                        { name: "`.gayboy`", value: "Says the gay boy name" },
+                        { name: "`.ep1`", value: "episode 1" },
+                        { name: "`.burnyule`", value: "burn HotGuy4%HD" },
+                        { name: "`.disstrack`", value: "HotGuy4%HD Diss track" },
+                        { name: "`.gayerboy`", value: "Gayer Boy" },
+                        { name: "`.gayestboy`", value: "Gayest Boy" }
                     );
                 
                 msg.channel.send(embed);
             } else if (args[1] == "mod") {
-                const embed = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setTitle("Moderation Commands")
                     .setThumbnail(pfp)
                     .setColor(0xff0000)
@@ -329,13 +592,13 @@ const execute = async (data, msg) => {
                 
                 msg.channel.send(embed);
             } else if (args[1] != "" && args[1] != null) {
-                const embed = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setThumbnail(pfp)
                     .setColor(0xff0000);
                 
                 msg.channel.send(embed);
             } else {
-                const embed = new MessageEmbed()
+                embed = new MessageEmbed()
                     .setTitle("HotBot3%4k Commands")
                     .setThumbnail(pfp)
                     .setColor(0xff0000)
@@ -350,8 +613,4 @@ const execute = async (data, msg) => {
             }
             break;
     }
-}
-
-module.exports.execute = (command, msg) => {
-    return execute(command, msg);
 };
