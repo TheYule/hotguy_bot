@@ -6,7 +6,7 @@ const cmd = require("./commands");
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.username}!`);
-  client.user.setActivity("φ TheYule.xyz φ | Type .help for commands", {
+  client.user.setActivity("φ .help φ", {
     type:"STREAMING",
     url: "https://www.twitch.tv/TheYule"
 });
