@@ -6,7 +6,10 @@ const cmd = require("./commands");
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.username}!`);
-  client.user.setActivity("👻Botghost.com👻 | Type .help for commands", { type: 2 });
+  client.user.setActivity("φ TheYule.xyz φ | Type .help for commands", {
+    type:"STREAMING",
+    url: "https://www.twitch.tv/TheYule"
+});
 });
 
 client.on("message", msg => { parser.parse(msg, prefix, (command) => { cmd.execute(command, msg); }) });

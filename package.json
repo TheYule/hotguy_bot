@@ -1,6 +1,6 @@
 {
   "name": "hotguy",
-  "version": "1.4.0",
+  "version": "1.1.0",
   "description": "A simple Discord bot that was (somewhat) copied from another bot as a troll.",
   "main": "hotguy.js",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/TheYule/hotguy_bot.git"
+    "url": "https://theyule.github.io/hotguy"
   },
   "author": "TheYule",
   "license": "ISC",

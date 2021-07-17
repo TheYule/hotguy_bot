@@ -100,6 +100,7 @@ module.exports.execute = async (data, msg) => {
 
     var embed;
     const pfp = "https://images-ext-1.discordapp.net/external/MBxcFgNaHP_16cmi4feNrJwJBbYniSPhuO3ZcFPQuFc/https/cdn.discordapp.com/avatars/859505952696041523/8a3b2ab1d9733ef0f76cd10a9cbb177b.webp";
+    const footer = "φ TheYule.xyz φ";
 
     switch (command) {
         case "ping":
@@ -147,8 +148,8 @@ module.exports.execute = async (data, msg) => {
                 .setTitle("Meme Id's")
                 .setColor("gray")
                 .addFields(
-                    { name: "How to create a meme", value: "First choose a template from below and copy its `#ID` and note its required `[captions]`. Next run `.create_meme <id> <first caption, second caption> ` with the correct number of [captions] seperated by commas." },
-                    { name: "Template IDs", value: "Error:\n`Unable to fetch templates. ERR_NO_TEMPLATES 0x2763h279s632`" }
+                    { name: "How to create a meme", value: "First choose a template from below and copy its `id`. Next run `.create_meme <id> <message>`. You now have a hilarious meme!" },
+                    { name: "Template IDs", value: "`1` — flowers\n`2` — party-ish\n`3` — sky & clouds\n`4` — blue & orange\n`5` — fireworks" }
                 );
             
             msg.channel.send(embed);
@@ -200,7 +201,7 @@ module.exports.execute = async (data, msg) => {
             }
             break;
         case "status":
-            error(msg, "Status can not be changed: Only premium users can change their bots status message.", ".status <status>");
+            error(msg, "Status can not be changed: Only ***The Yule*** can change his bot's status message.", ".status <status>");
             break;
         case "say":
             if (args[1] == "" || args[1] == null) {
@@ -217,7 +218,7 @@ module.exports.execute = async (data, msg) => {
                 .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                 .setColor(0x2ecc71)
                 .setDescription(":white_check_mark: AFK Status set with message: This user is currently AFK.\n\n`Type .afk to remove afk status`")
-                .setFooter("Created with BotGhost - https://botghost.com/");
+                .setFooter(footer);
             
             msg.channel.send(embed);
             break;
@@ -238,7 +239,7 @@ module.exports.execute = async (data, msg) => {
                     .setTitle("Warnings for " + msg.author.username)
                     .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                     .setColor(0x3498db)
-                    .setFooter("Created with BotGhost - https://botghost.com/");
+                    .setFooter(footer);
                 
                 msg.channel.send(embed);
             }
@@ -283,7 +284,7 @@ module.exports.execute = async (data, msg) => {
                     .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                     .setColor(0x2ecc71)
                     .setDescription(":white_check_mark: " + user.toString() + " was muted by " + msg.author.toString() + ".")
-                    .setFooter("Created with BotGhost - https://botghost.com/");
+                    .setFooter(footer);
 
                 msg.channel.send(embed);
 
@@ -315,7 +316,7 @@ module.exports.execute = async (data, msg) => {
                         .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                         .setColor(0x2ecc71)
                         .setDescription(":white_check_mark: " + user.toString() + " was unmuted by " + msg.author.toString() + ".")
-                        .setFooter("Created with BotGhost - https://botghost.com/");
+                        .setFooter(footer);
 
                     msg.channel.send(embed);
 
@@ -342,7 +343,7 @@ module.exports.execute = async (data, msg) => {
                     .setAuthor(msg.author.tag, msg.author.displayAvatarURL())
                     .setColor(0x3498db)
                     .setDescription(remainder_args(args))
-                    .setFooter("Created with BotGhost - https://botghost.com/");
+                    .setFooter(footer);
 
                 msg.guild.channels.cache.find(i => i.name === "suggestions").send(embed);
             }
@@ -360,7 +361,7 @@ module.exports.execute = async (data, msg) => {
                         .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                         .setColor(0x2ecc71)
                         .setDescription(":white_check_mark: " + user.toString() + " was kicked by " + msg.author.toString() + ".")
-                        .setFooter("Created with BotGhost - https://botghost.com/");
+                        .setFooter(footer);
 
                     msg.channel.send(embed);
 
@@ -397,7 +398,7 @@ module.exports.execute = async (data, msg) => {
                         .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                         .setColor(0x2ecc71)
                         .setDescription(":white_check_mark: " + user.toString() + " was soft banned by " + msg.author.toString() + " for `" + args[2] + "` days.")
-                        .setFooter("Created with BotGhost - https://botghost.com/");
+                        .setFooter(footer);
 
                     msg.channel.send(embed);
 
@@ -432,7 +433,7 @@ module.exports.execute = async (data, msg) => {
                         .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                         .setColor(0x2ecc71)
                         .setDescription(":white_check_mark: " + user.toString() + " was banned by " + msg.author.toString() + ".")
-                        .setFooter("Created with BotGhost - https://botghost.com/");
+                        .setFooter(footer);
 
                     msg.channel.send(embed);
 
@@ -473,7 +474,7 @@ module.exports.execute = async (data, msg) => {
                             .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                             .setColor(0x2ecc71)
                             .setDescription(":white_check_mark: Added role `" + args[2] + "` to " + user.toString())
-                            .setFooter("Created with BotGhost - https://botghost.com/");
+                            .setFooter(footer);
     
                         msg.channel.send(embed);
     
@@ -510,7 +511,7 @@ module.exports.execute = async (data, msg) => {
                             .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                             .setColor(0x2ecc71)
                             .setDescription(":white_check_mark: Remove role `" + args[2] + "` from " + user.toString())
-                            .setFooter("Created with BotGhost - https://botghost.com/");
+                            .setFooter(footer);
     
                         msg.channel.send(embed);
     
@@ -543,7 +544,7 @@ module.exports.execute = async (data, msg) => {
                     .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                     .setColor(0x3498db)
                     .setDescription("**New report against** " + user.toString() + "\n\nBy:" + msg.author.toString() + "\nLast message: " + user.lastMessage.content + result)
-                    .setFooter("Created with BotGhost - https://botghost.com/");
+                    .setFooter(footer);
 
                 msg.guild.channels.cache.find(i => i.name === "reports").send(embed);
 
@@ -567,7 +568,7 @@ module.exports.execute = async (data, msg) => {
                         .setAuthor(msg.author.username, msg.author.displayAvatarURL())
                         .setColor(0x2ecc71)
                         .setDescription(":white_check_mark: Successfully purged " + args[1] + " messages.")
-                        .setFooter("Created with BotGhost - https://botghost.com/");
+                        .setFooter(footer);
 
                     msg.channel.send(embed);
 
